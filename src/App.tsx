@@ -22,6 +22,7 @@ type EmployeeReport = {
   zacManager: string;
   customerService: string;
   behavioral: string;
+  isWorkFromHome: boolean;
   noLateBonus: boolean;
   writeups: string;
   irCount: string;
@@ -61,6 +62,7 @@ const createReport = (id: number): EmployeeReport => ({
   zacManager: "",
   customerService: "",
   behavioral: "",
+  isWorkFromHome: false,
   noLateBonus: false,
   writeups: "",
   irCount: "",
@@ -96,9 +98,9 @@ const calculateScore = (report: EmployeeReport): ScoreBreakdown => {
   const orders = Math.max(0, toNumber(report.orders));
   const calls = Math.max(0, toNumber(report.calls));
   const volume = Math.max(0, toNumber(report.volume));
-  const managerPoints = clamp(toNumber(report.zacManager), 0, 500);
-  const customerServicePoints = clamp(toNumber(report.customerService), 0, 150);
-  const behavioralPoints = clamp(toNumber(report.behavioral), 0, 100);
+  const managerPoints = clamp(toNumber(report.zacManager), 0, 200);
+  const customerServicePoints = clamp(toNumber(report.customerService), 0, 350);
+  const behavioralPoints = clamp(toNumber(report.behavioral), 0, 200);
   const writeups = Math.max(0, toNumber(report.writeups));
   const irCount = Math.max(0, toNumber(report.irCount));
 
@@ -363,7 +365,7 @@ const App = () => {
           "Volume",
           "Manager",
           "CS",
-          "Behavior",
+          "Behavior / Email&Comm",
           "Bonus",
           "Deductions",
           "Final",
@@ -541,11 +543,11 @@ const App = () => {
                 <h4>Manager Review</h4>
                 <div className="grid">
                   <label>
-                    Zac Manager Points (0-500)
+                    Zac Manager Points (0-200)
                     <input
                       type="number"
                       min="0"
-                      max="500"
+                      max="200"
                       value={report.zacManager}
                       onChange={(event) =>
                         updateReport(report.id, "zacManager", event.target.value)
@@ -556,12 +558,22 @@ const App = () => {
 
                 <h4>Team Leader Review</h4>
                 <div className="grid">
+                  <label className="checkbox">
+                    <input
+                      type="checkbox"
+                      checked={report.isWorkFromHome}
+                      onChange={(event) =>
+                        updateReport(report.id, "isWorkFromHome", event.target.checked)
+                      }
+                    />
+                    Is Work From Home
+                  </label>
                   <label>
-                    Customer Service Quality (0-150)
+                    Customer Service Quality (0-350)
                     <input
                       type="number"
                       min="0"
-                      max="150"
+                      max="350"
                       value={report.customerService}
                       onChange={(event) =>
                         updateReport(report.id, "customerService", event.target.value)
@@ -569,11 +581,13 @@ const App = () => {
                     />
                   </label>
                   <label>
-                    Behavioral Score (0-100)
+                    {report.isWorkFromHome
+                      ? "Email & Communication Quality (0-200)"
+                      : "Behavioral Score (0-200)"}
                     <input
                       type="number"
                       min="0"
-                      max="100"
+                      max="200"
                       value={report.behavioral}
                       onChange={(event) =>
                         updateReport(report.id, "behavioral", event.target.value)
@@ -642,7 +656,11 @@ const App = () => {
                       <strong>{score.customerServicePoints.toFixed(2)} pts</strong>
                     </li>
                     <li>
-                      <span>Behavioral</span>
+                      <span>
+                        {report.isWorkFromHome
+                          ? "Email & Communication"
+                          : "Behavioral"}
+                      </span>
                       <strong>{score.behavioralPoints.toFixed(2)} pts</strong>
                     </li>
                     <li>
